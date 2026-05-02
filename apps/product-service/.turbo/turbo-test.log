@@ -1,0 +1,19 @@
+
+> product-service@0.0.1 test
+> jest
+
+No tests found, exiting with code 1
+Run with `--passWithNoTests` to exit with code 0
+In /app/apps/product-service/src
+  8 files checked.
+  testMatch:  - 0 matches
+  testPathIgnorePatterns: /node_modules/ - 8 matches
+  testRegex: .*\.spec\.ts$ - 0 matches
+Pattern:  - 0 matches
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /app/apps/product-service
+npm error workspace product-service@0.0.1
+npm error location /app/apps/product-service
+npm error command failed
+npm error command sh -c jest

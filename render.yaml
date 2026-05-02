@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: rmf-user-service
+    env: node
+    buildCommand: npm ci && npm run build --filter=user-service
+    startCommand: npm run start:prod --filter=user-service
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+
+  - type: web
+    name: rmf-market-service
+    env: node
+    buildCommand: npm ci && npm run build --filter=market-service
+    startCommand: npm run start:prod --filter=market-service
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+
+  # Similarly for all other NestJS microservices...
