@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { OrderStatus, PaymentStatus, DisputeResolution } from '@rmf/shared-types';
 import { StateConflictError } from '@rmf/shared-utils';
 import { FraudDetectionService } from './fraud-detection.service';
+import { BuyerProtectionService } from './buyer-protection.service';
 
 const ORDER_TRANSITIONS: Record<string, string[]> = {
   [OrderStatus.SCHEDULED]: [OrderStatus.PLACED, OrderStatus.CANCELLED],
@@ -28,11 +29,12 @@ const PAYMENT_TRANSITIONS: Record<string, string[]> = {
 export class OrderService {
   constructor(
     @InjectModel('Transaction') private orderModel: Model<any>,
-    private fraudDetection: FraudDetectionService
+    private fraudDetection: FraudDetectionService,
+    private buyerProtection: BuyerProtectionService
   ) {}
 
   async createOrder(orderData: any): Promise<any> {
-    const fraudCheck = this.fraudDetection.evaluateOrderCreation(orderData);
+    const fraudCheck = await this.fraudDetection.evaluateOrderCreation(orderData);
 
     // Commission Floor: Document 7 Pricing & Commission Structure
     // 1.5% commission, min 100 RWF
@@ -162,7 +164,9 @@ export class OrderService {
 
     if (resolution === DisputeResolution.REFUND && order.financials.totalAmount <= 10000) {
       console.log(`Instant Refund processed for order ${id} via Buyer Protection Fund (1% pool).`);
-      // In a real system we'd make a cross-service call to wallet to execute the refund and decrement the reserve pool.
+      await this.buyerProtection.executeInstantRefund(id, order.financials.totalAmount, order.buyer.userId);
+    } else if (resolution === DisputeResolution.REFUND) {
+      await this.buyerProtection.escalateForManualReview(id, order.financials.totalAmount);
     }
     // In actual implementation, this would trigger a message to Wallet service
 

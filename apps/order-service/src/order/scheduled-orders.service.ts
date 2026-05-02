@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { Cron } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { OrderStatus } from '@rmf/shared-types';
@@ -13,6 +14,7 @@ export class ScheduledOrdersService {
 
   // In a real nest app we'd use @nestjs/schedule and @Cron('0 6 * * *')
   // We're stubbing the execution handler that cron would call.
+  @Cron('0 6 * * *')
   async executeScheduledOrders() {
     this.logger.log('Executing 06:00 scheduled orders check...');
     const now = new Date();
